@@ -16,6 +16,30 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final todosList = ToDo.todoList();
+  final _todoController = TextEditingController();
+
+  void _handleTodoChange(ToDo todo) {
+    setState(() {
+      todo.isDone = !todo.isDone;
+    });
+  }
+
+  void _deleteTodoItem(String id) {
+    setState(() {
+      todosList.removeWhere((item) => item.id == id);
+    });
+  }
+
+  void _addTodoItem(String toDo) {
+    setState(() {
+      todosList.add(
+        ToDo(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            todoText: toDo),
+      );
+    });
+    _todoController.clear();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +55,11 @@ class _HomePageState extends State<HomePage> {
               Text(
                 'Menu',
                 style: Theme.of(context).textTheme.displayLarge,
-              ),   SizedBox(
+              ),
+              SizedBox(
                 height: 30.h,
               ),
-              ListTile(),
+              const ListTile(),
               GestureDetector(
                 onTap: () {},
                 child: Container(
@@ -62,9 +87,14 @@ class _HomePageState extends State<HomePage> {
               GestureDetector(
                 onTap: () {},
                 child: Container(
-                  child: Text(
-                    'Pending Tasks',
-                    style: Theme.of(context).textTheme.displayMedium,
+                  child: Row(
+                    children: [
+                      Icon(Icons.access_time),
+                      Text(
+                        'Pending Tasks',
+                        style: Theme.of(context).textTheme.displayMedium,
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -115,7 +145,12 @@ class _HomePageState extends State<HomePage> {
                 Expanded(
                     child: ListView(
                   children: [
-                    for (ToDo todoo in todosList) TaskTile(todo: todoo),
+                    for (ToDo todoo in todosList)
+                      TaskTile(
+                        todo: todoo,
+                        onTodoChanged: _handleTodoChange,
+                        onDeleteItem: _deleteTodoItem,
+                      ),
                   ],
                 ))
               ],
@@ -134,7 +169,58 @@ class _HomePageState extends State<HomePage> {
                         backgroundColor:
                             const MaterialStatePropertyAll(buttonColor),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        showModalBottomSheet(
+                            context: context,
+                            builder: (context) {
+                              return Wrap(
+                                children: [
+                                  Container(
+                                    height: 400.h,
+                                    padding: EdgeInsets.all(30.h),
+                                    decoration: BoxDecoration(
+                                      color: lightbgColor,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          'ADD YOUR TASK HERE',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .displayLarge
+                                              ?.copyWith(
+                                                  color: deleteIconColor),
+                                        ),
+                                        SizedBox(
+                                          height: 20.h,
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.all(3.h),
+                                          decoration: BoxDecoration(
+                                              border: Border.all()),
+                                          child: TextFormField(
+                                            controller: _todoController,
+                                            decoration: InputDecoration(
+                                                border: InputBorder.none),
+                                            minLines: 1,
+                                            maxLines: 7,
+                                          ),
+                                        ),
+                                        ElevatedButton(
+                                            onPressed: () {
+                                              _addTodoItem(
+                                                  _todoController.text);
+                                            },
+                                            child: Text('Done'))
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            });
+                      },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

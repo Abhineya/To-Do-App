@@ -5,9 +5,12 @@ import 'package:todo_app/constants/colors.dart';
 import '../models/todo.dart';
 
 class TaskTile extends StatelessWidget {
-  const TaskTile({super.key, required this.todo});
+  const TaskTile(
+      {super.key, required this.todo, this.onTodoChanged, this.onDeleteItem});
 
   final ToDo todo;
+  final onTodoChanged;
+  final onDeleteItem;
 
   @override
   Widget build(BuildContext context) {
@@ -18,12 +21,14 @@ class TaskTile extends StatelessWidget {
       height: 50.h,
       child: ListTile(
         leading: IconButton(
-          onPressed: () {},
+          onPressed: () {
+            onTodoChanged(todo);
+          },
           icon: Icon(
             todo.isDone ? Icons.check_circle : Icons.circle_outlined,
             size: 20.h,
             // color: doneColor,
-            color: undoneColor,
+            color: doneColor,
           ),
         ),
         title: Text(
@@ -31,7 +36,9 @@ class TaskTile extends StatelessWidget {
           style: Theme.of(context).textTheme.displayMedium,
         ),
         trailing: IconButton(
-            onPressed: () {},
+            onPressed: () {
+              onDeleteItem(todo.id);
+            },
             icon: Icon(
               Icons.delete,
               size: 20.h,
